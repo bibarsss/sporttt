@@ -1,20 +1,30 @@
+volumes:
+  mysql-data:
+  npm_data:
+
+networks:
+  default:
+    driver: bridge
+
 services:
   app:
-    image: webdevops/php-nginx-dev:8.3-alpine
+    build:
+      dockerfile: ./.dev/Dockerfile
     container_name: app
     volumes:
-      - ./app:/app
-#      - ./.dev/nginx.conf:/etc/nginx/nginx.conf
+      - .:/app
       - ./.dev/nginx.conf:/opt/docker/etc/nginx/vhost.conf
+
     working_dir: /app
-    networks:
-      - default
     depends_on:
       - mysql
     environment:
       - COMPOSER_ALLOW_SUPERUSER=1
     ports:
       - "80:80"
+    restart: unless-stopped
+    networks:
+      - default
 
   mysql:
     image: mysql:5.7.44
@@ -25,9 +35,5 @@ services:
       - "3306:3306"
     networks:
       - default
+    restart: unless-stopped
 
-volumes:
-  mysql-data:
-
-networks:
-  default:
